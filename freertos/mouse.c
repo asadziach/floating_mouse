@@ -68,6 +68,8 @@ static usb_status_t USB_DeviceHidMouseCallback(class_handle_t handle, uint32_t e
 static usb_status_t USB_DeviceCallback(usb_device_handle handle, uint32_t event, void *param);
 static void USB_DeviceApplicationInit(void);
 
+extern void sensor_task(void *handle);
+
 /*******************************************************************************
  * Variables
  ******************************************************************************/
@@ -469,11 +471,13 @@ void main(void)
     BOARD_BootClockRUN();
     BOARD_InitDebugConsole();
 
+    xTaskCreate(sensor_task, "sensor_task", 1024, NULL, 4U, NULL);
+
     if (xTaskCreate(APP_task,                                  /* pointer to the task */
                     "app task",                                /* task name for kernel awareness debugging */
                     5000L / sizeof(portSTACK_TYPE),            /* task stack size */
                     &g_UsbDeviceHidMouse,                      /* optional task startup argument */
-                    4U,                                        /* initial priority */
+                    3U,                                        /* initial priority */
                     &g_UsbDeviceHidMouse.applicationTaskHandle /* optional task handle to create */
                     ) != pdPASS)
     {
