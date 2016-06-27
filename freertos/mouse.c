@@ -477,7 +477,7 @@ void main(void)
                     "app task",                                /* task name for kernel awareness debugging */
                     5000L / sizeof(portSTACK_TYPE),            /* task stack size */
                     &g_UsbDeviceHidMouse,                      /* optional task startup argument */
-                    3U,                                        /* initial priority */
+                    4U,                                        /* initial priority */
                     &g_UsbDeviceHidMouse.applicationTaskHandle /* optional task handle to create */
                     ) != pdPASS)
     {
