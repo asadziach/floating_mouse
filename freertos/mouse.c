@@ -28,6 +28,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#define SENSITIVITY 10
+
 #include "usb_device_config.h"
 #include "usb.h"
 #include "usb_device.h"
@@ -73,6 +75,10 @@ extern void sensor_task(void *handle);
 /*******************************************************************************
  * Variables
  ******************************************************************************/
+extern int16_t xAngle;
+extern int16_t yAngle;
+extern int16_t xDir;
+extern int16_t yDir;
 
 usb_hid_mouse_struct_t g_UsbDeviceHidMouse;
 
@@ -100,62 +106,30 @@ usb_device_class_config_list_struct_t g_UsbDeviceHidConfigList = {
 /* Update mouse pointer location. Draw a rectangular rotation*/
 static usb_status_t USB_DeviceHidMouseAction(void)
 {
-    static int8_t x = 0U;
-    static int8_t y = 0U;
-    enum
-    {
-        RIGHT,
-        DOWN,
-        LEFT,
-        UP
-    };
-    static uint8_t dir = RIGHT;
+	if(xAngle > SENSITIVITY)
+	{
+		if(xDir==1)
+		{
+			g_UsbDeviceHidMouse.buffer[1] = 2U;
+		}else{
+			g_UsbDeviceHidMouse.buffer[1] = (uint8_t)-2U;
+		}
+	}else{
+		g_UsbDeviceHidMouse.buffer[1] = 0;
+	}
 
-    switch (dir)
-    {
-        case RIGHT:
-            /* Move right. Increase X value. */
-            g_UsbDeviceHidMouse.buffer[1] = 2U;
-            g_UsbDeviceHidMouse.buffer[2] = 0U;
-            x++;
-            if (x > 99U)
-            {
-                dir++;
-            }
-            break;
-        case DOWN:
-            /* Move down. Increase Y value. */
-            g_UsbDeviceHidMouse.buffer[1] = 0U;
-            g_UsbDeviceHidMouse.buffer[2] = 2U;
-            y++;
-            if (y > 99U)
-            {
-                dir++;
-            }
-            break;
-        case LEFT:
-            /* Move left. Discrease X value. */
-            g_UsbDeviceHidMouse.buffer[1] = (uint8_t)(-2);
-            g_UsbDeviceHidMouse.buffer[2] = 0U;
-            x--;
-            if (x < 2U)
-            {
-                dir++;
-            }
-            break;
-        case UP:
-            /* Move up. Discrease Y value. */
-            g_UsbDeviceHidMouse.buffer[1] = 0U;
-            g_UsbDeviceHidMouse.buffer[2] = (uint8_t)(-2);
-            y--;
-            if (y < 2U)
-            {
-                dir = RIGHT;
-            }
-            break;
-        default:
-            break;
-    }
+	if(yAngle > SENSITIVITY)
+	{
+		if(yDir==1)
+		{
+			g_UsbDeviceHidMouse.buffer[2] = 2U;
+		}else{
+			g_UsbDeviceHidMouse.buffer[2] = (uint8_t)-2U;
+		}
+	}else{
+		g_UsbDeviceHidMouse.buffer[2] = 0;
+	}
+
     /* Send mouse report to the host */
     return USB_DeviceHidSend(g_UsbDeviceHidMouse.hidHandle, USB_HID_MOUSE_ENDPOINT_IN, g_UsbDeviceHidMouse.buffer,
                              USB_HID_MOUSE_REPORT_LENGTH);

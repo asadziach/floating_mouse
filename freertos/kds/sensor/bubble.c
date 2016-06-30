@@ -64,6 +64,11 @@ i2c_master_handle_t g_MasterHandle;
 /* FXOS device address */
 const uint8_t g_accel_address[] = {0x1CU, 0x1DU, 0x1EU, 0x1FU};
 
+int16_t xAngle = 0;
+int16_t yAngle = 0;
+int16_t xDir = 1;
+int16_t yDir = 1;
+
 /*******************************************************************************
  * Code
  ******************************************************************************/
@@ -124,8 +129,6 @@ void sensor_task(void *handle)
     uint32_t i2cSourceClock = 0;
     int16_t xData = 0;
     int16_t yData = 0;
-    int16_t xAngle = 0;
-    int16_t yAngle = 0;
     uint8_t i = 0;
     uint8_t regResult = 0;
     uint8_t array_addr_size = 0;
@@ -193,12 +196,20 @@ void sensor_task(void *handle)
         xAngle = (int16_t)floor((double)xData * 0.011);
         if (xAngle < 0)
         {
+        	xDir = -1;
             xAngle *= -1;
+        }else
+        {
+        	xDir = 1;
         }
         yAngle = (int16_t)floor((double)yData * 0.011);
         if (yAngle < 0)
         {
+        	yDir=-1;
             yAngle *= -1;
+        }else
+        {
+        	yDir=1;
         }
         /* Update angles to turn on LEDs when angles ~ 90 */
         if (xAngle > ANGLE_UPPER_BOUND)
@@ -222,6 +233,6 @@ void sensor_task(void *handle)
         Board_UpdatePwm(xAngle, yAngle);
 
         /* Print out the raw accelerometer data. */
-        PRINTF("x= %d y = %d\r\n", xData, yData);
+        PRINTF("x= %d y = %d xAngle=%d, yAngle=%d\r\n", xData, yData, xAngle, yAngle);
     }
 }
