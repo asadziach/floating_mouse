@@ -66,6 +66,7 @@ const uint8_t g_accel_address[] = {0x1CU, 0x1DU, 0x1EU, 0x1FU};
 
 int16_t xAngle = 0;
 int16_t yAngle = 0;
+int16_t zAngle = 0;
 int16_t xDir = 1;
 int16_t yDir = 1;
 
@@ -129,6 +130,7 @@ void sensor_task(void *handle)
     uint32_t i2cSourceClock = 0;
     int16_t xData = 0;
     int16_t yData = 0;
+    int16_t zData = 0;
     uint8_t i = 0;
     uint8_t regResult = 0;
     uint8_t array_addr_size = 0;
@@ -191,6 +193,7 @@ void sensor_task(void *handle)
         /* Get the X and Y data from the sensor data structure.fxos_data */
         xData = (int16_t)((uint16_t)((uint16_t)sensorData.accelXMSB << 8) | (uint16_t)sensorData.accelXLSB);
         yData = (int16_t)((uint16_t)((uint16_t)sensorData.accelYMSB << 8) | (uint16_t)sensorData.accelYLSB);
+        zData = (int16_t)((uint16_t)((uint16_t)sensorData.accelZMSB << 8) | (uint16_t)sensorData.accelZLSB);
 
         /* Convert raw data to angle (normalize to 0-90 degrees). No negative angles. */
         xAngle = (int16_t)floor((double)xData * 0.011);
@@ -210,6 +213,12 @@ void sensor_task(void *handle)
         }else
         {
         	yDir=1;
+        }
+
+        zAngle = (int16_t)floor((double)zData * 0.011);
+        if (zAngle < 0)
+        {
+            zAngle *= -1;
         }
         /* Update angles to turn on LEDs when angles ~ 90 */
         if (xAngle > ANGLE_UPPER_BOUND)
@@ -233,6 +242,6 @@ void sensor_task(void *handle)
         Board_UpdatePwm(xAngle, yAngle);
 
         /* Print out the raw accelerometer data. */
-        PRINTF("x= %d y = %d xAngle=%d, yAngle=%d\r\n", xData, yData, xAngle, yAngle);
+        PRINTF("x= %d y = %d xAngle=%d, yAngle=%d zAngle=%d\r\n", xData, yData, xAngle, yAngle, zAngle);
     }
 }
