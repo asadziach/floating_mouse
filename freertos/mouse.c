@@ -29,6 +29,7 @@
  */
 
 #define SENSITIVITY 10
+#define TOUCH_THRESHHOLD  3000
 
 #include "usb_device_config.h"
 #include "usb.h"
@@ -54,6 +55,7 @@
 #include "usb_phy.h"
 #endif
 
+#include "fsl_tsi_v4.h"
 #include "pin_mux.h"
 #include <stdbool.h>
 /*******************************************************************************
@@ -129,6 +131,37 @@ static usb_status_t USB_DeviceHidMouseAction(void)
 	}else{
 		g_UsbDeviceHidMouse.buffer[2] = 0;
 	}
+
+    TSI_EnableHardwareTriggerScan(TSI0, false); /* Enable software trigger scan */
+    TSI_DisableInterrupts(TSI0, kTSI_EndOfScanInterruptEnable);
+    TSI_ClearStatusFlags(TSI0, kTSI_EndOfScanFlag);
+    TSI_SetMeasuredChannelNumber(TSI0, BOARD_TSI_ELECTRODE_2);
+    TSI_StartSoftwareTrigger(TSI0);
+    while (!(TSI_GetStatusFlags(TSI0) & kTSI_EndOfScanFlag))
+    {
+    }
+    /* Left mouse button */
+    if(TSI_GetCounter(TSI0) > TOUCH_THRESHHOLD){
+    	g_UsbDeviceHidMouse.buffer[0] |= 1U;
+    }else{
+    	g_UsbDeviceHidMouse.buffer[0] &= ~1U;
+    }
+
+    TSI_EnableHardwareTriggerScan(TSI0, false); /* Enable software trigger scan */
+    TSI_DisableInterrupts(TSI0, kTSI_EndOfScanInterruptEnable);
+    TSI_ClearStatusFlags(TSI0, kTSI_EndOfScanFlag);
+    TSI_SetMeasuredChannelNumber(TSI0, BOARD_TSI_ELECTRODE_1);
+    TSI_StartSoftwareTrigger(TSI0);
+    while (!(TSI_GetStatusFlags(TSI0) & kTSI_EndOfScanFlag))
+    {
+    }
+
+    /* Right mouse button */
+    if(TSI_GetCounter(TSI0) > TOUCH_THRESHHOLD){
+    	g_UsbDeviceHidMouse.buffer[0] |= 2U;
+    }else{
+    	g_UsbDeviceHidMouse.buffer[0] &= ~2U;
+    }
 
     /* Send mouse report to the host */
     return USB_DeviceHidSend(g_UsbDeviceHidMouse.hidHandle, USB_HID_MOUSE_ENDPOINT_IN, g_UsbDeviceHidMouse.buffer,
@@ -409,8 +442,10 @@ void USB_DeviceTask(void *handle)
 }
 #endif
 
+
 void APP_task(void *handle)
 {
+
     USB_DeviceApplicationInit();
 
 #if USB_DEVICE_CONFIG_USE_TASK
@@ -430,8 +465,19 @@ void APP_task(void *handle)
     }
 #endif
 
+    tsi_config_t tsiConfig_normal = {0};
+
+    /* TSI default hardware configuration for normal mode */
+    TSI_GetNormalModeDefaultConfig(&tsiConfig_normal);
+
+    /* Initialize the TSI */
+    TSI_Init(TSI0, &tsiConfig_normal);
+
+    TSI_EnableModule(TSI0, true); /* Enable module */
+
     while (1U)
     {
+    	vTaskSuspend( NULL );
     }
 }
 

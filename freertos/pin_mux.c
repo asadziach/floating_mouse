@@ -46,4 +46,12 @@ void BOARD_InitPins(void)
     PORT_SetPinMux(PORTC, 14u, kPORT_MuxAlt3);
     /* Affects PORTC_PCR15 register */
     PORT_SetPinMux(PORTC, 15u, kPORT_MuxAlt3);
+
+    /* Initialize Touch pad pins below */
+    /* Ungate the port clock */
+    CLOCK_EnableClock(kCLOCK_PortB);
+    /* Affects PORTB_PCR18 register */
+    PORT_SetPinMux(PORTB, 18U, kPORT_PinDisabledOrAnalog);
+    /* Affects PORTB_PCR19 register */
+    PORT_SetPinMux(PORTB, 19U, kPORT_PinDisabledOrAnalog);
 }
