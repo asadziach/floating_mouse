@@ -414,7 +414,7 @@ static void USB_DeviceApplicationInit(void)
     }
     else
     {
-        usb_echo("USB device HID mouse demo\r\n");
+        usb_echo("USB HID Device Ready.\r\n");
         /* Get the HID mouse class handle */
         g_UsbDeviceHidMouse.hidHandle = g_UsbDeviceHidConfigList.config->classHandle;
     }

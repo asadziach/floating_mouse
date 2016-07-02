@@ -181,8 +181,7 @@ void sensor_task(void *handle)
     Timer_Init();
 
     /* Print a note to terminal */
-    PRINTF("\r\nWelcome to BUBBLE example\r\n");
-    PRINTF("\r\nYou will see the change of LED brightness when change angles of board\r\n");
+    PRINTF("\r\nAccelerometer Ready!\r\n");
 
     /* Main loop. Get sensor data and update duty cycle */
     while (1)
@@ -242,6 +241,6 @@ void sensor_task(void *handle)
         Board_UpdatePwm(xAngle, yAngle);
 
         /* Print out the raw accelerometer data. */
-        PRINTF("x= %d y = %d xAngle=%d, yAngle=%d zAngle=%d\r\n", xData, yData, xAngle, yAngle, zAngle);
+        //PRINTF("x= %d y = %d xAngle=%d, yAngle=%d zAngle=%d\r\n", xData, yData, xAngle, yAngle, zAngle);
     }
 }
