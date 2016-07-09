@@ -64,11 +64,12 @@ i2c_master_handle_t g_MasterHandle;
 /* FXOS device address */
 const uint8_t g_accel_address[] = {0x1CU, 0x1DU, 0x1EU, 0x1FU};
 
-int16_t xAngle = 0;
-int16_t yAngle = 0;
-int16_t zAngle = 0;
+int16_t Ax = 0;
+int16_t Ay = 0;
+int16_t Az = 0;
 int16_t xDir = 1;
 int16_t yDir = 1;
+int16_t Mx, My, Mz;
 
 /*******************************************************************************
  * Code
@@ -189,56 +190,61 @@ void sensor_task(void *handle)
         /* Get new accelerometer data. */
         FXOS_ReadSensorData(&fxosHandle, &sensorData);
 
-        /* Get the X and Y data from the sensor data structure.fxos_data */
+        /* Get the X,Y and Z data from the accelerometer. */
         xData = (int16_t)((uint16_t)((uint16_t)sensorData.accelXMSB << 8) | (uint16_t)sensorData.accelXLSB);
         yData = (int16_t)((uint16_t)((uint16_t)sensorData.accelYMSB << 8) | (uint16_t)sensorData.accelYLSB);
         zData = (int16_t)((uint16_t)((uint16_t)sensorData.accelZMSB << 8) | (uint16_t)sensorData.accelZLSB);
 
+        /* Get data from magnetometer. */
+        Mx = (int16_t)((uint16_t)((uint16_t)sensorData.magXMSB << 8) | (uint16_t)sensorData.magXLSB);
+        My = (int16_t)((uint16_t)((uint16_t)sensorData.magYMSB << 8) | (uint16_t)sensorData.magYLSB);
+        Mz = (int16_t)((uint16_t)((uint16_t)sensorData.magZMSB << 8) | (uint16_t)sensorData.magZLSB);
+
         /* Convert raw data to angle (normalize to 0-90 degrees). No negative angles. */
-        xAngle = (int16_t)floor((double)xData * 0.011);
-        if (xAngle < 0)
+        Ax = (int16_t)floor((double)xData * 0.011);
+        if (Ax < 0)
         {
         	xDir = -1;
-            xAngle *= -1;
+            Ax *= -1;
         }else
         {
         	xDir = 1;
         }
-        yAngle = (int16_t)floor((double)yData * 0.011);
-        if (yAngle < 0)
+        Ay = (int16_t)floor((double)yData * 0.011);
+        if (Ay < 0)
         {
         	yDir=-1;
-            yAngle *= -1;
+            Ay *= -1;
         }else
         {
         	yDir=1;
         }
 
-        zAngle = (int16_t)floor((double)zData * 0.011);
-        if (zAngle < 0)
+        Az = (int16_t)floor((double)zData * 0.011);
+        if (Az < 0)
         {
-            zAngle *= -1;
+            Az *= -1;
         }
         /* Update angles to turn on LEDs when angles ~ 90 */
-        if (xAngle > ANGLE_UPPER_BOUND)
+        if (Ax > ANGLE_UPPER_BOUND)
         {
-            xAngle = 100;
+            Ax = 100;
         }
-        if (yAngle > ANGLE_UPPER_BOUND)
+        if (Ay > ANGLE_UPPER_BOUND)
         {
-            yAngle = 100;
+            Ay = 100;
         }
         /* Update angles to turn off LEDs when angles ~ 0 */
-        if (xAngle < ANGLE_LOWER_BOUND)
+        if (Ax < ANGLE_LOWER_BOUND)
         {
-            xAngle = 0;
+            Ax = 0;
         }
-        if (yAngle < ANGLE_LOWER_BOUND)
+        if (Ay < ANGLE_LOWER_BOUND)
         {
-            yAngle = 0;
+            Ay = 0;
         }
 
-        Board_UpdatePwm(xAngle, yAngle);
+        Board_UpdatePwm(Ax, Ay);
 
         /* Print out the raw accelerometer data. */
         //PRINTF("x= %d y = %d xAngle=%d, yAngle=%d zAngle=%d\r\n", xData, yData, xAngle, yAngle, zAngle);

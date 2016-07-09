@@ -77,10 +77,11 @@ extern void sensor_task(void *handle);
 /*******************************************************************************
  * Variables
  ******************************************************************************/
-extern int16_t xAngle;
-extern int16_t yAngle;
+extern int16_t Ax;
+extern int16_t Ay;
 extern int16_t xDir;
 extern int16_t yDir;
+extern int16_t Mx, My, Mz;
 
 usb_hid_mouse_struct_t g_UsbDeviceHidMouse;
 
@@ -105,10 +106,10 @@ usb_device_class_config_list_struct_t g_UsbDeviceHidConfigList = {
  * Code
  ******************************************************************************/
 
-/* Update mouse pointer location. Draw a rectangular rotation*/
+/* Update mouse pointer location. */
 static usb_status_t USB_DeviceHidMouseAction(void)
 {
-	if(xAngle > SENSITIVITY)
+	if(Ax > SENSITIVITY)
 	{
 		if(xDir==1)
 		{
@@ -120,7 +121,7 @@ static usb_status_t USB_DeviceHidMouseAction(void)
 		g_UsbDeviceHidMouse.buffer[1] = 0;
 	}
 
-	if(yAngle > SENSITIVITY)
+	if(Ay > SENSITIVITY)
 	{
 		if(yDir==1)
 		{
