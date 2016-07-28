@@ -80,6 +80,7 @@ FLEXIO_I2C_Type i2cDev;
 uint8_t g_accel_addr_found = 0x00;
 volatile bool completionFlag = false;
 volatile bool nakFlag = false;
+static uint8_t readBuff[13];
 int16_t Ax = 0;
 int16_t Ay = 0;
 int16_t Az = 0;
@@ -309,7 +310,6 @@ void sensor_task(void *handle)
     {
         uint8_t databyte = 0;
         uint8_t write_reg = 0;
-        uint8_t readBuff[7];
         uint8_t status0_value = 0;
         uint32_t i = 0;
 
@@ -363,6 +363,10 @@ void sensor_task(void *handle)
             xData = (int16_t)((uint16_t)((uint16_t)readBuff[1] << 8) | (uint16_t)readBuff[2]);
             yData = (int16_t)((uint16_t)((uint16_t)readBuff[3] << 8) | (uint16_t)readBuff[4]);
             zData = (int16_t)((uint16_t)((uint16_t)readBuff[5] << 8) | (uint16_t)readBuff[6]);
+
+            Mx = (int16_t)((uint16_t)((uint16_t)readBuff[7] << 8) | (uint16_t)readBuff[8]);
+            My = (int16_t)((uint16_t)((uint16_t)readBuff[9] << 8) | (uint16_t)readBuff[10]);
+            Mz = (int16_t)((uint16_t)((uint16_t)readBuff[11] << 8) | (uint16_t)readBuff[12]);
 
             /* Convert raw data to angle (normalize to 0-90 degrees). No negative angles. */
              Ax = (int16_t)((double)xData * 0.011);
