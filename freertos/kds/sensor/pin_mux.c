@@ -30,20 +30,13 @@
 
 #include "fsl_port.h"
 #include "pin_mux.h"
-#include "fsl_gpio.h"
+#include "fsl_common.h"
 
 /*******************************************************************************
  * Code
  ******************************************************************************/
 void BOARD_InitPins(void)
 {
-    port_pin_config_t pinConfig = {0};
-    port_pin_config_t ftmPinConfig = {0};
-
-    pinConfig.pullSelect = kPORT_PullUp;
-    pinConfig.mux = kPORT_MuxAlt4;
-    pinConfig.openDrainEnable = kPORT_OpenDrainEnable;
-
     /* Initialize LPUART4 pins below */
     /* Ungate the port clock */
     CLOCK_EnableClock(kCLOCK_PortC);
@@ -52,62 +45,17 @@ void BOARD_InitPins(void)
     /* Affects PORTC_PCR15 register */
     PORT_SetPinMux(PORTC, 15U, kPORT_MuxAlt3);
 
-    /* Ungate the port clock */
+    CLOCK_EnableClock(kCLOCK_PortB);
+    /* FlexIO-I2C SDA pin */
+    /* Affects PORTB_PCR10 register */
+    PORT_SetPinMux(PORTB, 10U, kPORT_MuxAlt7);
+    /* FlexIO-I2C SCL pin */
+    /* Affects PORTB_PCR11 register */
+    PORT_SetPinMux(PORTB, 11U, kPORT_MuxAlt7);
+
     CLOCK_EnableClock(kCLOCK_PortA);
-
-    /* Release I2C bus */
-    BOARD_I2C_ReleaseBus();
-
-    /* PIN_MUX and I2C3_pull_up resistor setting */
-    PORT_SetPinConfig(PORTA, 1U, &pinConfig);
-    PORT_SetPinConfig(PORTA, 2U, &pinConfig);
-
-    /* FTM3 */
-    /* Affects PORTC_PCR10 register */
-    ftmPinConfig.driveStrength = kPORT_LowDriveStrength;
-    ftmPinConfig.slewRate = kPORT_SlowSlewRate;
-    ftmPinConfig.pullSelect = kPORT_PullDisable;
-    ftmPinConfig.mux = kPORT_MuxAlt3;
-    PORT_SetPinConfig(PORTC, 10U, &ftmPinConfig);
-    /* Affects PORTC_PCR9 register */
-    PORT_SetPinConfig(PORTC, 9U, &ftmPinConfig);
-}
-
-void BOARD_I2C_ReleaseBus(void)
-{
-    port_pin_config_t i2c_pin_config = {0};
-    gpio_pin_config_t pin_config;
-    uint8_t i = 0;
-    uint8_t j = 0;
-
-    /* Config pin mux as gpio */
-    i2c_pin_config.pullSelect = kPORT_PullUp;
-    i2c_pin_config.mux = kPORT_MuxAsGpio;
-
-    pin_config.pinDirection = kGPIO_DigitalOutput;
-    pin_config.outputLogic = 1U;
-
-    PORT_SetPinConfig(PORTA, 1U, &i2c_pin_config);
-    PORT_SetPinConfig(PORTA, 2U, &i2c_pin_config);
-
-    GPIO_PinInit(GPIOA, 1U, &pin_config);
-    GPIO_PinInit(GPIOA, 2U, &pin_config);
-
-    /* Send 9 pulses on SCL and keep SDA high */
-    for (i = 0; i < 9; i++)
-    {
-        GPIO_WritePinOutput(GPIOA, 2U, 0U);
-        for (j = 0; j < 255; j++)
-        {
-            __asm("nop");
-        }
-        GPIO_WritePinOutput(GPIOA, 2U, 1U);
-        for (j = 0; j < 255; j++)
-        {
-            __asm("nop");
-        }
-    }
-    /* Send STOP */
-    GPIO_WritePinOutput(GPIOA, 2U, 1U);
-    GPIO_WritePinOutput(GPIOA, 1U, 1U);
+    /* Affects PORTA_PCR1 register */
+    PORT_SetPinMux(PORTA, 1U, kPORT_MuxAlt4);
+    /* Affects PORTA_PCR2 register */
+    PORT_SetPinMux(PORTA, 2U, kPORT_MuxAlt4);
 }

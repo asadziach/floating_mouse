@@ -492,7 +492,7 @@ void main(void)
     BOARD_BootClockRUN();
     BOARD_InitDebugConsole();
 
-    xTaskCreate(sensor_task, "sensor_task", 1024, NULL, 4U, NULL);
+    xTaskCreate(sensor_task, "sensor_task", 4096, NULL, 4U, NULL);
 
     if (xTaskCreate(APP_task,                                  /* pointer to the task */
                     "app task",                                /* task name for kernel awareness debugging */

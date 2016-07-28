@@ -35,23 +35,27 @@
 /*******************************************************************************
  * Code
  ******************************************************************************/
-
-/* Function Name : BOARD_InitPins */
 void BOARD_InitPins(void)
 {
     /* Initialize LPUART4 pins below */
     /* Ungate the port clock */
     CLOCK_EnableClock(kCLOCK_PortC);
     /* Affects PORTC_PCR14 register */
-    PORT_SetPinMux(PORTC, 14u, kPORT_MuxAlt3);
+    PORT_SetPinMux(PORTC, 14U, kPORT_MuxAlt3);
     /* Affects PORTC_PCR15 register */
-    PORT_SetPinMux(PORTC, 15u, kPORT_MuxAlt3);
+    PORT_SetPinMux(PORTC, 15U, kPORT_MuxAlt3);
 
-    /* Initialize Touch pad pins below */
-    /* Ungate the port clock */
     CLOCK_EnableClock(kCLOCK_PortB);
-    /* Affects PORTB_PCR18 register */
-    PORT_SetPinMux(PORTB, 18U, kPORT_PinDisabledOrAnalog);
-    /* Affects PORTB_PCR19 register */
-    PORT_SetPinMux(PORTB, 19U, kPORT_PinDisabledOrAnalog);
+    /* FlexIO-I2C SDA pin */
+    /* Affects PORTB_PCR10 register */
+    PORT_SetPinMux(PORTB, 10U, kPORT_MuxAlt7);
+    /* FlexIO-I2C SCL pin */
+    /* Affects PORTB_PCR11 register */
+    PORT_SetPinMux(PORTB, 11U, kPORT_MuxAlt7);
+
+    CLOCK_EnableClock(kCLOCK_PortA);
+    /* Affects PORTA_PCR1 register */
+    PORT_SetPinMux(PORTA, 1U, kPORT_MuxAlt4);
+    /* Affects PORTA_PCR2 register */
+    PORT_SetPinMux(PORTA, 2U, kPORT_MuxAlt4);
 }
