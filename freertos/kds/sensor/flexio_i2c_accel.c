@@ -353,6 +353,7 @@ void sensor_task(void *handle)
             while (status0_value != 0xff)
             {
                 I2C_read_accel_regs(&i2cDev, g_accel_addr_found, ACCEL_STATUS, &status0_value, 1);
+                vTaskDelay( 1 );
             }
 
             /*  Multiple-byte Read from STATUS (0x00) register */
@@ -415,7 +416,7 @@ void sensor_task(void *handle)
 
              PRINTF("x= %d y = %d xAngle=%d, yAngle=%d zAngle=%d\r\n", xData, yData, Ax, Ay, Az);
 
-             vTaskDelay( 20 );
+             vTaskDelay( 10 );
         }
     }else{
     	PRINTF("\r\nSensor not found.\r\n");
